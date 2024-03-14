@@ -3,20 +3,21 @@ import TeacherCourses from "../models/teacherCoursesModel.js";
 import mongoose from "mongoose";
 import EnrolledStudent from "../models/enrolledStudentModel.js";
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com", // Update with your SMTP server hostname
   port: 587, // Update with your SMTP server port
   auth: {
-    user: "affanmuhammad623@gmail.com",
-    pass: "SgRAcD2ZQMW9h5TX",
-    // pass: "xsmtpsib-b547df8a67e303ed2b93ece06cb4ccf12ef1d2fc59ff3cd45811f6a0bde8b50d-YCJvcj65aGBNd84q",
+    user: process.env.BREVOEMAIL,
+    pass: process.env.BREVOSMTPKEY,
   },
 });
 
 const EmailSender = async (to, subject, text) => {
   const mailOptions = {
-    from: "affanmuhammad623@gmail.com", // Your email address
+    from: process.env.BREVOEMAIL, // Your email address
     to,
     subject,
     text,
