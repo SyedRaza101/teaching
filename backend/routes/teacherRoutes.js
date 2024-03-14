@@ -5,6 +5,6 @@ import { getAllTeachers , getTeacherById , registerTeacher} from '../controllers
 
 router.route('/').get(getAllTeachers)
 router.route('/:id').get(getTeacherById)
-router.route('/').post(registerTeacher)
+router.route('/').post(registerTeacher) // not using
 
 export default router

@@ -1,21 +1,27 @@
+import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { HeaderIconMenuWrapper } from "./styles";
 import UserPopover from "./user-popover";
 
 const HeaderIconMenu = () => {
-  //   const { userName }: IUser = useSelector((state: RootState) => state.auth)
+  const { user } = useSelector((state) => state.auth);
+  console.log(user);
   return (
     <HeaderIconMenuWrapper>
       <li className="iconMenuList accountMenu">
         <NavLink
           to="/login"
-          style={{ padding: "0", display: "flex", alignItems: "center" }}
+          style={{
+            padding: "0",
+            display: "flex",
+            alignItems: "center",
+            color: "#fff",
+          }}
         >
-          {/* {userName !== null && userName} */}
-          Sign in
+          {user && user?.name !== null ? user?.name : "Sign in"}
         </NavLink>
       </li>
-      <UserPopover />
+      {user && user?.name !== null && <UserPopover />}
     </HeaderIconMenuWrapper>
   );
 };

@@ -1,3 +1,4 @@
+import { Flex } from "antd";
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
@@ -31,4 +32,10 @@ export const Description = styled.h2`
 export const Text = styled.h2`
   font-weight: 400;
   letter-spacing: 1px;
+  margin: 0;
+`;
+
+export const ReviewWrapper = styled(Flex)`
+  width: 450px;
+  padding-top: 30px;
 `;

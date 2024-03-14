@@ -10,11 +10,10 @@ import { NavLink } from "react-router-dom";
 import { Loader } from "../../../components";
 import HeaderMenu from "./header-menu";
 import HeaderIconMenu from "./header-icon-menu";
-// import { useSelector } from "react-redux";
-// import { RootState } from '~/store'
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
-  //   const { globalLoader } = useSelector((state: RootState) => state.globalLoader)
+  const { globalLoader } = useSelector((state) => state.globalLoader);
   return (
     <NavWrapper>
       <LeftWrapper>
@@ -23,10 +22,9 @@ const Navbar = () => {
             <NavLink to={"/"}>
               <img src={Logo} alt="faact" />
             </NavLink>
-            <p>Teach-Me</p>
+            <a href="/">Teach-Me</a>
           </LogoWrapper>
-          {/* {!!globalLoader && <Loader />} */}
-          <Loader />
+          {!!globalLoader && <Loader />}
         </BrandWrapper>
         <HeaderMenu />
       </LeftWrapper>

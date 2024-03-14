@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const CardWrapper = styled.div`
   user-select: none;
-  max-width: 23%;
+  width: 23%;
   cursor: pointer;
   background-color: whitesmoke;
   box-shadow: 0px -1px 13px 3px rgba(0, 0, 0, 0.42);
@@ -49,7 +49,7 @@ export const Wrapper = styled.div`
 
 export const CardImage = styled.img`
   border-radius: 0.5rem;
-  max-width: 100%;
+  width: 100%;
   height: 250px;
   object-fit: cover;
 `;

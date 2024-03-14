@@ -1,21 +1,48 @@
 import { Flex } from "antd";
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Card } from "../../components";
+import { setGlobalLoader } from "../../store/slices/globalLoader";
 import { TextWrapper, Wrapper } from "./styles";
 
-const Course = () => {
+const Course = ({ isTeacher = false }) => {
+  const dispatch = useDispatch();
+  const [courses, setCourses] = useState([]);
+  const [filterCourses, setfilterCourses] = useState([]);
+  const { searchText } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(setGlobalLoader(true));
+    axios({
+      url: "http://localhost:5000/api/courses",
+      method: "GET",
+    })
+      .then((res) => {
+        setCourses(res.data);
+        setfilterCourses(res.data);
+      })
+      .finally(() => {
+        dispatch(setGlobalLoader(false));
+      });
+  }, []);
+  useEffect(() => {
+    if (courses.length > 0) {
+      const filterCourse = courses.slice();
+      const filteredItem = filterCourse.filter((item) =>
+        item.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setfilterCourses(filteredItem);
+    }
+  }, [searchText]);
   return (
     <Wrapper>
       <TextWrapper>Our Courses</TextWrapper>
-      <Flex
-        wrap="wrap"
-        gap="20px"
-        justify="space-between"
-        style={{ rowGap: "40px" }}
-      >
-        {[1, 2, 3, 4, 5].map(() => (
-          <Card />
-        ))}
+      <Flex wrap="wrap" gap="20px" style={{ rowGap: "40px" }}>
+        {Object.keys(filterCourses).length > 0 &&
+          filterCourses.map((item) => (
+            <Card key={item._id} item={item} isTeacher={isTeacher} />
+          ))}
       </Flex>
     </Wrapper>
   );

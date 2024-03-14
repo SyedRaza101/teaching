@@ -1,15 +1,13 @@
-import { Flex, Form } from "antd";
-import { Link } from "react-router-dom";
+import { Form } from "antd";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  // Description,
-  MessageContainer,
-  // LinkBox,
   LoginForm,
   SubmitButton,
   Title,
   Text,
+  Image,
 } from "./styles";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Helmet,
   Toast,
@@ -17,7 +15,11 @@ import {
   InputNumber,
   CustomSelect,
 } from "../../../components";
-// import { setLoading } from '~/store/slices/auth'
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setGlobalLoader } from "../../../store/slices/globalLoader";
+import { setUser } from "../../../store/slices/auth";
 
 const departmentOptions = [
   { label: "Software", value: "Software" },
@@ -30,61 +32,146 @@ const departmentOptions = [
 ];
 
 const Register = ({ isTeacher }) => {
-  //   const dispatch = useDispatch()
-  //   const [Login, { isLoading }] = useLoginMutation()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
-  const [error, setError] = useState(false);
-  //   if (isLoading) {
-  //     dispatch(setLoading(true))
-  //   }
-  useEffect(() => {
-    if (error) {
-      setInterval(() => setError(false), 5000);
+  const [image, setImage] = useState("");
+  const [files, setFiles] = useState("");
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFiles(e.target.files[0]);
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setImage(reader.result);
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
     }
-  }, [error]);
-  const handleSubmit = (value) => {
-    // if (values.username !== '' && values.password !== '') {
-    //   Login({
-    //     username: values.username,
-    //     password: values.password,
-    //     // client_id: import.meta.env.VITE_client_id,
-    //     client_id: 4,
-    //     client_secret: '7to1BNC1e6iHHkn46kG9RM5WdReQoUtzkBp2jrjr',
-    //     // client_secret: import.meta.env.VITE_client_secret,
-    //     grant_type: 'password'
-    //   })
-    //     .unwrap()
-    //     .then(() => {
-    //       dispatch(setLoading(false))
-    //     })
-    //     .catch(() => {
-    //       setError(true)
-    //       dispatch(setLoading(false))
-    //     })
-    // } else {
-    //   setError(true)
-    // }
   };
 
+  const handleSubmit = (value) => {
+    if (!isTeacher) {
+      if (
+        value.name !== "" &&
+        value.email !== "" &&
+        value.password !== "" &&
+        value.studentId !== "" &&
+        value.studentDepartment !== "" &&
+        value.phone !== "" &&
+        value.confirm_password !== ""
+      ) {
+        if (value.confirm_password == value.password) {
+          dispatch(setGlobalLoader(true));
+          axios({
+            url: "http://localhost:5000/api/users/register/student",
+            method: "POST",
+            headers: {},
+            data: value,
+          })
+            .then((res) => {
+              form.resetFields();
+              toast.success("Student Register Successfully!");
+              dispatch(
+                setUser({
+                  token: res.data.token,
+                  user: res.data,
+                })
+              );
+              navigate("/");
+            })
+            .catch((err) => {
+              toast.error(err?.response?.data?.message);
+            })
+            .finally(() => {
+              dispatch(setGlobalLoader(false));
+            });
+        } else {
+          toast.error("Password not Match!");
+        }
+      }
+    } else {
+      if (
+        value.name !== "" &&
+        value.email !== "" &&
+        value.password !== "" &&
+        value.teacherId !== "" &&
+        value.teacherDepartment !== "" &&
+        value.phone !== "" &&
+        value.confirm_password !== "" &&
+        value.image !== ""
+      ) {
+        if (value.confirm_password == value.password) {
+          const formData = new FormData();
+          formData.append("image", files);
+          formData.append("name", value.name);
+          formData.append("email", value.email);
+          formData.append("password", value.password);
+          formData.append("teacherDepartment", value.teacherDepartment);
+          formData.append("phone", value.phone);
+          formData.append("teacherId", value.teacherId);
+          dispatch(setGlobalLoader(true));
+          axios({
+            url: "http://localhost:5000/api/users/register/teacher",
+            method: "POST",
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            data: formData,
+          })
+            .then((res) => {
+              form.resetFields();
+              setFiles("");
+              setImage("");
+              toast.success("Teacher Register Successfully!");
+              dispatch(
+                setUser({
+                  token: res.data.token,
+                  user: res.data,
+                })
+              );
+              navigate("/");
+            })
+            .catch((err) => {
+              toast.error(err?.response?.data?.message);
+            })
+            .finally(() => {
+              dispatch(setGlobalLoader(false));
+            });
+        } else {
+          toast.error("Password not Match!");
+        }
+      }
+    }
+  };
   return (
     <div>
       <Helmet title="Teach Me" />
       <Title level={1}>Sign Up</Title>
       <LoginForm layout="vertical" form={form} onFinish={handleSubmit}>
-        {error && (
-          <MessageContainer>
-            <Toast
-              type="error"
-              message="The info entered doesn't match our records. Please try again or select Forget Username or Password."
+        {isTeacher && (
+          <>
+            {image !== "" && <Image src={image} alt="Uploaded" />}
+            <TextField
+              required
+              message=" Profile Picture is Required!"
+              placeholder="Enter your Profile Picture"
+              label="Profile Picture"
+              name="image"
+              type="file"
+              onChange={handleFileChange}
+              autoComplete="off"
             />
-          </MessageContainer>
+          </>
         )}
         <TextField
           required
           message=" Name is Required!"
           placeholder="Enter your Name"
           label="Name"
-          name="email"
+          name="name"
           autoComplete="off"
         />
         <TextField
@@ -119,7 +206,7 @@ const Register = ({ isTeacher }) => {
             message=" Teacher ID is Required!"
             placeholder="Enter your Teacher ID"
             label="Teacher ID"
-            name="teacher_id"
+            name="teacherId"
             autoComplete="off"
           />
         ) : (
@@ -128,47 +215,29 @@ const Register = ({ isTeacher }) => {
             message=" Student ID is Required!"
             placeholder="Enter your Student ID"
             label="Student ID"
-            name="student_id"
+            name="studentId"
             autoComplete="off"
           />
         )}
-        <CustomSelect
-          label="Department"
-          placeholder="Enter your Department"
-          name="department"
-          options={departmentOptions}
-          message="Department is Required!"
-          required
-        />
-        {isTeacher && (
-          <>
-          <TextField
+        {isTeacher ? (
+          <CustomSelect
+            label="Department"
+            placeholder="Enter your Department"
+            name="teacherDepartment"
+            options={departmentOptions}
+            message="Department is Required!"
             required
-            message=" Course is Required!"
-            placeholder="Enter your Course"
-            label="Course"
-            name="course"
-            autoComplete="off"
           />
-            <InputNumber
-              label="Price"
-              placeholder="Enter your Price"
-              name="price"
-              message="Price is Required!"
-              required
-              isBorder
-            />
-            <TextField
-              required
-              message=" Grade is Required!"
-              placeholder="Enter your Grade"
-              label="Grade"
-              name="grade"
-              autoComplete="off"
-            />
-          </>
+        ) : (
+          <CustomSelect
+            label="Department"
+            placeholder="Enter your Department"
+            name="studentDepartment"
+            options={departmentOptions}
+            message="Department is Required!"
+            required
+          />
         )}
-
         <InputNumber
           label="Phone No"
           placeholder="Enter your Phone Number"

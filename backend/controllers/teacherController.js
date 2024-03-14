@@ -6,7 +6,7 @@ import Teacher from '../models/teacherModel.js'
 // @route GET /api/teachers
 // @access Public
 const getAllTeachers = asyncHandler(async(req, res) =>{
-    const teacher =  await Teacher.find({})
+    const teacher =  await Teacher.find({}).populate("user","name")
     res.json(teacher)
 })
 
@@ -14,7 +14,7 @@ const getAllTeachers = asyncHandler(async(req, res) =>{
 // @route GET /api/teacher/:id
 // @access Public
 const getTeacherById = asyncHandler(async(req, res) =>{
-    const teacherId = await Teacher.findById(req.params.id)
+    const teacherId = await Teacher.findById(req.params.id).populate('user','name email role')
     if (teacherId){
         res.json(teacherId)
     }else{

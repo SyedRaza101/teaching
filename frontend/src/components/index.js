@@ -9,6 +9,11 @@ import SearchPatient from "./search-patient";
 import Loader from "./loader";
 import Card from "./card";
 import Review from "./review";
+import CustomTextArea from "./input/custom-textarea";
+import CustomUpload from "./input/custom-upload";
+import UserTable from "./table/user";
+import Modal from "./modal";
+import TimePicker from "./time-picker";
 
 export {
   Helmet,
@@ -22,4 +27,9 @@ export {
   Loader,
   Card,
   Review,
+  UserTable,
+  Modal,
+  CustomTextArea,
+  CustomUpload,
+  TimePicker,
 };

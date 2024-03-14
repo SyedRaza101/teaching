@@ -1,9 +1,7 @@
 import { Flex, Form } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  // Description,
   MessageContainer,
-  // LinkBox,
   LoginForm,
   SubmitButton,
   Title,
@@ -11,43 +9,53 @@ import {
 } from "./styles";
 import { useEffect, useState } from "react";
 import { Helmet, Toast, TextField } from "../../../components";
-// import { setLoading } from '~/store/slices/auth'
+import { useDispatch } from "react-redux";
+import { setUser } from "../../../store/slices/auth";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { setGlobalLoader } from "../../../store/slices/globalLoader";
 
 const Login = () => {
-  //   const dispatch = useDispatch()
-  //   const [Login, { isLoading }] = useLoginMutation()
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const redirect = location.search.split("=");
   const [form] = Form.useForm();
   const [error, setError] = useState(false);
-  //   if (isLoading) {
-  //     dispatch(setLoading(true))
-  //   }
   useEffect(() => {
     if (error) {
       setInterval(() => setError(false), 5000);
     }
   }, [error]);
-  const handleSubmit = (value) => {
-    // if (values.username !== '' && values.password !== '') {
-    //   Login({
-    //     username: values.username,
-    //     password: values.password,
-    //     // client_id: import.meta.env.VITE_client_id,
-    //     client_id: 4,
-    //     client_secret: '7to1BNC1e6iHHkn46kG9RM5WdReQoUtzkBp2jrjr',
-    //     // client_secret: import.meta.env.VITE_client_secret,
-    //     grant_type: 'password'
-    //   })
-    //     .unwrap()
-    //     .then(() => {
-    //       dispatch(setLoading(false))
-    //     })
-    //     .catch(() => {
-    //       setError(true)
-    //       dispatch(setLoading(false))
-    //     })
-    // } else {
-    //   setError(true)
-    // }
+  const handleSubmit = (values) => {
+    if (values.email !== "" && values.password !== "") {
+      dispatch(setGlobalLoader(true));
+      axios({
+        url: "http://localhost:5000/api/users/login",
+        method: "POST",
+        headers: {},
+        data: values,
+      })
+        .then((res) => {
+          form.resetFields();
+          toast.success("Login Successfully!");
+          dispatch(
+            setUser({
+              token: res.data.token,
+              user: res.data,
+            })
+          );
+          navigate(redirect[1] == null ? "/" : redirect[1]);
+        })
+        .catch((err) => {
+          toast.error(err?.response?.data?.message);
+        })
+        .finally(() => {
+          dispatch(setGlobalLoader(false));
+        });
+    } else {
+      setError(true);
+    }
   };
 
   useEffect(() => {

@@ -1,35 +1,104 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   CourseName,
   Description,
   ImageProduct,
+  ReviewWrapper,
   Text,
   Wrapper,
 } from "./styles";
 import { Col, Flex, Row } from "antd";
-import { Review } from "../../components";
+import { Button, CustomTextArea, Review, UserTable } from "../../components";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setGlobalLoader } from "../../store/slices/globalLoader";
+import { useState } from "react";
+import axios from "axios";
+
+const column = ["Name", "Email", "Price"];
 
 const SingleCourse = () => {
+  const { token } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const [course, setCourse] = useState("");
+  const [teachers, setTeachers] = useState([]);
+
+  const params = useParams();
+  console.log(params);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(setGlobalLoader(true));
+    axios({
+      url: `http://localhost:5000/api/courses/${params?.id}`,
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        setCourse(res?.data);
+      })
+      .finally(() => {
+        dispatch(setGlobalLoader(false));
+      });
+  }, []);
+
+  useEffect(() => {
+    dispatch(setGlobalLoader(true));
+    axios({
+      url: `http://localhost:5000/api/teacher-Course/course/${params?.id}`,
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        setTeachers(res?.data);
+      })
+      .finally(() => {
+        dispatch(setGlobalLoader(false));
+      });
+  }, []);
+
+  const clickHandler = (id) => {
+    if (token === null) {
+      navigate(`/login?redirectTo=/schedule/1`);
+    } else {
+      navigate(`/schedule/${id}`);
+    }
+  };
   return (
     <Wrapper>
       <Row>
         <Col span={12}>
           <ImageProduct>
-            <img src="https://images.unsplash.com/photo-1621075160523-b936ad96132a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" />
+            <img src={`http://localhost:5000${course?.image}`} />
           </ImageProduct>
         </Col>
         <Col span={12}>
           <Flex gap="middle" vertical justify="center">
-            <CourseName>Algebra</CourseName>
-            <Description>
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-              Provident recusandae amet aperiam incidunt tempora totam nesciunt
-              unde omnis dicta, quia, optio distinctio at, doloribus sint?
-            </Description>
-            <Text>$55.00</Text>
-            <Review />
-            <Text>By Jon Bolunt</Text>
-            <Text>0123456789</Text>
+            <CourseName>{course?.name}</CourseName>
+            <Description>{course?.description}</Description>
+            <>
+              {teachers?.length > 0 && (
+                <UserTable column={column}>
+                  <>
+                    {teachers?.length > 0 &&
+                      teachers?.map((item, index) => (
+                        <tr
+                          key={index}
+                          style={{ cursor: "pointer" }}
+                          onClick={() => clickHandler(item?._id)}
+                        >
+                          <td className="p-3">{item?.teacherId?.name}</td>
+                          <td className="p-3">{item?.teacherId?.email}</td>
+                          <td className="p-3">{item?.price}</td>
+                        </tr>
+                      ))}
+                  </>
+                </UserTable>
+              )}
+            </>
           </Flex>
         </Col>
       </Row>

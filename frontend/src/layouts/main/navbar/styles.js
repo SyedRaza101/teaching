@@ -44,7 +44,7 @@ export const LogoWrapper = styled.div`
       margin-left: -10px;
     }
   }
-  p {
+  a {
     padding: 0 15px;
     white-space: nowrap;
   }
@@ -64,7 +64,7 @@ export const RightWrapper = styled.div`
   display: flex;
   align-items: center;
   max-width: 50%;
-  width: 200px;
+  width: 250px;
 `;
 
 export const SearchWrapper = styled.div`

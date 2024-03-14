@@ -9,6 +9,10 @@ export const Title = styled(Typography.Title)`
   margin-top: 10px;
   margin-bottom: 10px !important;
 `;
+export const Image = styled.img`
+  height: 200px;
+  width: 200px;
+`;
 
 export const Description = styled(Typography.Text)`
   margin-bottom: 30px !important;

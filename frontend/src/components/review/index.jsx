@@ -1,10 +1,8 @@
-import { Rate } from 'antd'
-import React from 'react'
+import { Rate } from "antd";
+import React from "react";
 
-const Review = () => {
-  return (
-    <Rate allowHalf defaultValue={2.5}/>
-  )
-}
+const Review = ({ onChange, value, ...rest }) => {
+  return <Rate onChange={onChange} value={value} {...rest} />;
+};
 
-export default Review
+export default Review;
