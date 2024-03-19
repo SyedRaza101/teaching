@@ -36,9 +36,9 @@ const enrollCourse = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("teacherCourseId is required");
   }
-  const isteacherCourseIdExist = await TeacherCourses.findById(
-    teacherCourseId
-  ).exec();
+  const isteacherCourseIdExist = await TeacherCourses.findById(teacherCourseId)
+    .populate("teacherId courseId")
+    .exec();
   if (!isteacherCourseIdExist) {
     res.status(400);
     throw new Error("teacherCourse is not exist");
@@ -60,11 +60,15 @@ const enrollCourse = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("slot not found");
   }
-  console.log({
-    enrolledUserId: req.user._id,
-    teacherCourseId: teacherCourseId,
-    slot,
-  });
+
+  const studentEmail = req.user.email;
+  const studentName = req.user.name;
+  const teacherEmail = isteacherCourseIdExist.teacherId.email;
+  const teacherName = isteacherCourseIdExist.teacherId.name;
+  const courseName = isteacherCourseIdExist.courseId.name;
+  const studentMessage = `You got enrolled in ${courseName} course of teacher ${teacherName}`;
+  const teacherMessage = ` Student ${studentName}: enrolled your ${courseName} course`;
+
   const isStudentEnrolled = await EnrolledStudent.findOne({
     enrolledUserId: req.user._id,
     teacherCourseId: teacherCourseId,
@@ -82,6 +86,16 @@ const enrollCourse = asyncHandler(async (req, res) => {
     slot_id: slotMongoID,
   });
   const updation = await enrollcourse.save();
+  await EmailSender(
+    studentEmail,
+    "Coursed enrolled notification",
+    studentMessage
+  );
+  await EmailSender(
+    teacherEmail,
+    "Coursed enrolled notification",
+    teacherMessage
+  );
   res.status(201).json(updation);
 });
 
@@ -232,5 +246,5 @@ export {
   getTeacherUpcomingLesson,
   updateStatusofEnrollCourse,
   StudenClassCancel,
-  contactUs
+  contactUs,
 };

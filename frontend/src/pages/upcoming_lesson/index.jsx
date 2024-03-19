@@ -65,13 +65,12 @@ const UpcomingLesson = ({ isTeacher = false }) => {
   const handleClick = () => {
     if (option !== "") {
       const days = new dayjs().day();
-      if (lessonTime && day === weekDays[`${days}`]) {
+      if (lessonTime) {
         const currentTime = new dayjs();
         const scheduledTime = dayjs(lessonTime, "hh:mm a");
         const timeDiffInMilliseconds = scheduledTime - currentTime;
         const timeDiffInHours = timeDiffInMilliseconds / (1000 * 60 * 60);
-
-        if (timeDiffInHours >= 1) {
+        if (timeDiffInHours >= 1 || day !== weekDays[`${days}`]) {
           if (isTeacher) {
             dispatch(setGlobalLoader(true));
             axios({
