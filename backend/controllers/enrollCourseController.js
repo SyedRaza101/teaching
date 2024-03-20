@@ -84,6 +84,7 @@ const enrollCourse = asyncHandler(async (req, res) => {
     teacherId: isteacherCourseIdExist.teacherId,
     courseId: isteacherCourseIdExist.courseId,
     slot_id: slotMongoID,
+    isActive: false
   });
   const updation = await enrollcourse.save();
   await EmailSender(
