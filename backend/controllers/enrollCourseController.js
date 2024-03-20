@@ -84,7 +84,7 @@ const enrollCourse = asyncHandler(async (req, res) => {
     teacherId: isteacherCourseIdExist.teacherId,
     courseId: isteacherCourseIdExist.courseId,
     slot_id: slotMongoID,
-    isActive: false
+    isActive: true
   });
   const updation = await enrollcourse.save();
   await EmailSender(
@@ -147,8 +147,10 @@ const getTeacherUpcomingLesson = asyncHandler(async (req, res) => {
       model: "Course",
     },
   });
+  console.log(enrollcourse,"enrollCourse")
   if (enrollcourse?.length) {
     const result = {};
+
     // Loop through each entry in the inputData
     enrollcourse.forEach((entry) => {
       const day = entry.slot.day;
@@ -224,6 +226,11 @@ const StudenClassCancel = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("course not found");
   }
+  const updateStatus = await EnrolledStudent.updateOne({
+    teacherCourseId,
+    slot_id,
+    enrolledUserId: req.user._id,
+  }, { $set: { isActive: false } })
   await EmailSender(
     enrolledStudent?.[0]?.teacherId?.email,
     "Class cancellation",
