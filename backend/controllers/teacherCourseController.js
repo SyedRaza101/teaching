@@ -267,7 +267,7 @@ const getAllTeacherofCourse = asyncHandler(async (req, res) => {
   const allCourses = await TeacherCourses.find({
     courseId,
     isTeaching: true,
-  }).populate("teacherId", "name email");
+  }).populate("teacherId", "name email picture");
   res.status(200).json(allCourses);
 });
 

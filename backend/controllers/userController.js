@@ -252,6 +252,7 @@ const registerTeacher = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
+    picture: fileNameAfterUploads,
     name: name,
     email: email,
     password: password,
