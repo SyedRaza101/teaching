@@ -89,6 +89,7 @@ const UpcomingLesson = ({ isTeacher = false }) => {
                 setLessonTime("");
                 toast.success("Class Cancel Successfully!");
                 setOpen(false);
+                navigate('/')
               })
               .catch((err) => {
                 toast.error(err?.response?.data?.message);
